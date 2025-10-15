@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee CRUD App</title>
+  <style>
+    body { font-family: Arial; margin: 20px; color: green; }
+    h2 { color: red; }
+    input, button { margin: 5px; padding: 8px; color: blue; }
+    table { border-collapse: collapse; margin-top: 20px; width: 80%; }
+    th { background: #f2f2f2; border: 1px solid black; padding: 8px; text-align: left; color: red; }
+    td { border: 1px solid black; padding: 8px; text-align: left; color: green; }
+  </style>
+</head>
+<body>
+  <h2>Employee Database</h2>
+
+  <input type="number" id="emp_no" placeholder="Employee No">
+  <input type="text" id="name" placeholder="Name">
+  <input type="text" id="designation" placeholder="Designation">
+  <input type="number" id="salary" placeholder="Salary">
+  <button onclick="addEmployee()">Add Employee</button>
+
+  <table id="employeeTable">
+    <thead>
+      <tr>
+        <th>Emp No</th>
+        <th>Name</th>
+        <th>Designation</th>
+        <th>Salary</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const api = "http://localhost:3000/employees";
+
+    // Load Employees
+    async function loadEmployees() {
+      const res = await fetch(api);
+      const employees = await res.json();
+      const tbody = document.querySelector("#employeeTable tbody");
+      tbody.innerHTML = "";
+      employees.forEach(emp => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${emp.emp_no}</td>
+            <td>${emp.name}</td>
+            <td>${emp.designation}</td>
+            <td>${emp.salary}</td>
+            <td>
+              <button onclick="deleteEmployee(${emp.emp_no})">Delete</button>
+              <button onclick="updateEmployee(${emp.emp_no})">Update</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Add Employee
+    async function addEmployee() {
+      await fetch(api, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          emp_no: document.getElementById("emp_no").value,
+          name: document.getElementById("name").value,
+          designation: document.getElementById("designation").value,
+          salary: document.getElementById("salary").value
+        })
+      });
+      alert("Employee Added!");
+      loadEmployees();
+    }
+
+    // Delete Employee
+    async function deleteEmployee(id) {
+      await fetch(`${api}/${id}`, { method: "DELETE" });
+      alert("Employee Deleted!");
+      loadEmployees();
+    }
+
+    // Update Employee
+    async function updateEmployee(id) {
+      const name = prompt("Enter new name:");
+      const designation = prompt("Enter new designation:");
+      const salary = prompt("Enter new salary:");
+      await fetch(`${api}/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name, designation, salary })
+      });
+      alert("Employee Updated!");
+      loadEmployees();
+    }
+
+    loadEmployees();
+  </script>
+</body>
+</html>

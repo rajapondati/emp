@@ -1,0 +1,8 @@
+# Initialize project
+npm init -y
+
+# Install dependencies
+npm install express mysql2 cors
+
+# Run server
+node server.js
